@@ -1,0 +1,171 @@
+{
+  "name": "Weekly Meal Planner",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Weekly meal plan",
+        "options": {
+          "systemMessage": "=You are an AI assistant that generates a detailed weekly meal plan for 7 days (Monday through Sunday) along with a comprehensive grocery list based on those meals.\n\n1. First, generate a list of all 14 meals needed for the week (2 meals per day: Lunch and Dinner).\n2. ALWAYS use the \"Google Search\" tool to search the internet to search for these meals recipe.\n3. Extract and list the dish name, list of ingredients, and the complete recipe in a step-by-step format for each meal from the consolidated search results.\n\nThe output should be formatted like this example:\n\nMonday - Sunday (Nov 3 to Nov 9, 2025)\n\nMonday:\n\nLunch: Dish Name\n\nIngredients:\n\ningredient 1\ningredient 2\n\nRecipe:\nStep 1\nStep 2\n\nDinner: Dish Name\n\nIngredients:\n\ningredient 1\ningredient 2\n\nRecipe:\nStep 1\nStep 2\n\n...\n\n(repeat for each day through Sunday)\n\nAfter listing all meals for the week, provide a consolidated Grocery List with all ingredients and their quantities needed for the entire week.\n\nFinally, send this output as an email via the \"Send Email\" tool with the following requirements:\n\n1. The subject of the email should exactly match the header at the top, e.g., \"Monday - Sunday (Nov 3 to Nov 9, 2025)\"\n2. The body of the email should be in HTML format reflecting the structured output above with clear headings and lists for readability.\n3. Use appropriate HTML tags such as headings (<h1>, <h2>, etc.), paragraphs, and unordered lists (<ul>, <li>) to ensure clear presentation and visual appeal.\n\n\nCurrent date is {{ $now }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        256,
+        0
+      ],
+      "id": "1e050138-6616-4d39-8bf8-008b07e92935",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        224
+      ],
+      "id": "5cd14603-ef4d-4957-be7d-86da2531653d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "yXHU3vaB1gEp1ZVs",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "gitandrun@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        512,
+        224
+      ],
+      "id": "c07b28e3-6ffc-489e-9f69-92c8fa0ffdb7",
+      "name": "Send Email",
+      "webhookId": "a09e59da-6bdf-4695-9f35-b6355729b101",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KdNbvdMyS3fouZgr",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1914c57b-cde0-4ab8-8bb3-00530b380e56",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search_Query__q_', ``, 'string') }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-serpapi.serpApiTool",
+      "typeVersion": 1,
+      "position": [
+        384,
+        224
+      ],
+      "id": "fecd6049-c052-4a42-a606-65861945fc31",
+      "name": "Google Search",
+      "credentials": {
+        "serpApi": {
+          "id": "AsPCll9dIonR0DJv",
+          "name": "SerpApi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0e97c661-ea86-4382-9516-712ceae5c99b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "398373a00ccfa8a38a09fc1f38af9510a3287d2559eb2a735d30e6b92f8738d9"
+  },
+  "id": "0DFcmPbE39SA67OF",
+  "tags": []
+}
