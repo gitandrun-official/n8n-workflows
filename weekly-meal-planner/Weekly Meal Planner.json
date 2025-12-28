@@ -44,7 +44,7 @@
     },
     {
       "parameters": {
-        "sendTo": "gitandrun@gmail.com",
+        "sendTo": "YOUR-EMAIL-HERE",
         "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
         "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
         "options": {}
@@ -161,7 +161,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "0e97c661-ea86-4382-9516-712ceae5c99b",
+  "versionId": "27a94d4a-ce4a-4a90-94fb-1d57508ef706",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "398373a00ccfa8a38a09fc1f38af9510a3287d2559eb2a735d30e6b92f8738d9"

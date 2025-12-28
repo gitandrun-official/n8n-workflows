@@ -1,0 +1,908 @@
+{
+  "name": "Job Hunter",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "YOUR-EMAIL-HERE",
+        "subject": "Jobs Matching Your Skills",
+        "message": "={{ $json.data[0].output }}\n<br/>\n{{ $json.data[1].output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        880
+      ],
+      "id": "e0ae87ac-07ae-4e89-aa96-e4bf4d1ee5aa",
+      "name": "Send a message",
+      "webhookId": "96d305e3-0a2a-4818-a1d5-361e547295d5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KdNbvdMyS3fouZgr",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -448,
+        128
+      ],
+      "id": "04fd698f-88da-456b-bc48-8dc4e79cb60f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -768,
+        720
+      ],
+      "id": "b60f1bd6-de7b-4c24-9878-6d72f5f0a331",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        128
+      ],
+      "id": "6ad64eae-9c54-440f-bb04-5fb0ba16f8b8",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"job_title\": \"\",\n  \"job_description\": \"\",\n  \"company\": \"\",\n  \"employment_type\": \"\",\n  \"remote\": \"\",\n  \"salary\": \"\",\n  \"benefits\": \"\",\n  \"responsibilities\": \"\",\n  \"qualifications\": \"\",\n  \"apply_link\": \"\",\n  \"match_score\": 0,\n  \"match_reason\": \"\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        1008
+      ],
+      "id": "5dd0afc5-97f3-40fa-b941-7c9a3bba6c76",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        320
+      ],
+      "id": "4e479778-9443-4610-b86a-421aec22d40e",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.match_reason }}",
+        "options": {
+          "systemMessage": "=You are an AI career coach. You will receive a JSON array where each object contains a \"match_reason\" field — an array of text explaining why a candidate matches a job.\n\nYour task is to analyze these match reasons and produce output formatted in **HTML** suitable for an email body:\n\n**Areas to Improve:** A bullet list of specific skills, technologies, or knowledge the candidate should develop or strengthen to qualify for more job openings. Only include actionable items addressing skill gaps mentioned in the match reasons.\n\n**HTML Output Format:**\n\n<div style=\"font-family: Arial, sans-serif; color: #333; line-height: 1.5; max-width: 600px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);\"> \n\n  <h2 style=\"color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 5px;\">Areas to Improve</h2>\n  <ul style=\"font-size: 16px; margin-top: 10px; padding-left: 20px;\">\n    <li>[Skill/technology/knowledge area 1]</li>\n    <li>[Skill/technology/knowledge area 2]</li>\n    <li>...</li>\n  </ul>\n\n</div>\n\n**Important:** \n- Do not include any extra commentary beyond the improvement list. \n- Use only the information provided in the match_reason fields.\n- Always output in HTML format exactly as specified.\n- Ensure the HTML is clean, readable, and can be used directly as an email body.\n- Output ONLY raw HTML\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1056,
+        1072
+      ],
+      "id": "db5e6c20-87ba-4d59-9288-92473dcd9a79",
+      "name": "Analyze what skills to learn"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        128
+      ],
+      "id": "764b569e-b78e-4602-a99b-8771511c52ae",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/1TtqxW_rtonCAW4xyFM_f76e1ujwvsBu_/view",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        128
+      ],
+      "id": "557bf515-ed3a-4344-a5a8-1cc0eb961744",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KhIuUgTmhURT10yU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "21b6e2e0-70e3-4b97-8f43-710f6b96b31a",
+              "name": "expected_salary",
+              "value": 100000,
+              "type": "number"
+            },
+            {
+              "id": "91461966-8461-4281-bbce-e34c8954be2e",
+              "name": "resume",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        128
+      ],
+      "id": "3fdb23c2-a83f-4dc6-8b4b-55ab87f36501",
+      "name": "Details"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=You will receive text extracted from a PDF resume. Extract all the important information typically found in a resume, including:\n\n- Full name and contact information (phone, email, address if available)\n- Professional summary or objective\n- Work experience (job titles, company names, locations, dates, key responsibilities, achievements)\n- Education background (degrees, institutions, graduation dates)\n- Skills (technical skills, soft skills, languages)\n- Certifications or licenses\n- Awards, honors, or recognitions\n- Additional relevant information (projects, publications, volunteer work, etc.)\n\nOrganize the extracted information clearly with descriptive headings and simple lists. Format the output for easy readability and processing by another AI, avoiding unnecessary formatting or escape characters."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        224,
+        128
+      ],
+      "id": "0b42612c-e690-4512-b22c-0b850367291f",
+      "name": "Resume Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a Strict Recruitment Logic Engine. Your ONLY task is to return a valid JSON object based on a hard mathematical salary check and a conservative skill assessment.\n\n### INPUT DATA\n1. **Candidate Resume:**\n{{ $('Details').item.json.resume }}\n\n2. **Candidate Minimum Salary Floor (USD):**\n{{ $('Details').item.json.expected_salary }}\n\n3. **Job Listing (JSON):**\n{{ JSON.stringify($json) }}\n\n---\n\n### STEP 1: DATA NORMALIZATION (The \"Hierarchy of Truth\")\n\n**Goal:** Derive a single clean integer called `JOB_CEILING`.\n\n**Priority 1: CHECK CLEAN JSON FIELDS (Crucial)**\nLook at the input JSON fields `job_max_salary` and `job_min_salary`.\n- **IF** `job_max_salary` is a number greater than 0:\n  - Set `JOB_CEILING` = `job_max_salary`.\n  - **STOP.** Do not look at the text description. Use this number.\n- **ELSE IF** `job_min_salary` is a number greater than 0:\n  - Set `JOB_CEILING` = `job_min_salary`.\n  - **STOP.**\n- **ELSE:** Proceed to Priority 2.\n\n**Priority 2: PARSE TEXT (Only if Priority 1 failed)**\nLook at the `salary` text field (e.g., \"Pay Range $87,100.00 - $157,450.00\").\n1. **Sanitize:** Remove ALL of the following characters: `$`, `,`, `USD`, `Pay Range`.\n   - Example: \"$157,450.00\" becomes \"157450.00\".\n2. **Handle Decimals:** Round down or remove decimal places.\n   - Example: \"157450.00\" becomes \"157450\".\n3. **Handle \"k\":** Replace \"k\" with \"000\".\n4. **Identify Max:** Pick the highest remaining number.\n5. **Handle Hourly:** If the text contained \"/hr\" or \"hourly\", multiply the number by 2080.\n\n**RESULT:** You now have a clean integer `JOB_CEILING`.\n(If no data found, `JOB_CEILING` = 0).\n\n---\n\n### STEP 2: THE MATH COMPARISON\n\n**Variables:**\n- `MIN_FLOOR` = Candidate's Expected Salary (Clean Integer).\n- `JOB_CEILING` = Result from Step 1.\n\n**The Strict Logic Rules:**\n- **PASS:** If `JOB_CEILING` >= `MIN_FLOOR`.\n- **PASS:** If `JOB_CEILING` is within 5% of `MIN_FLOOR`.\n- **FAIL:** If `JOB_CEILING` < `MIN_FLOOR`.\n- **FAIL:** If `JOB_CEILING` == 0.\n\n** SANITY CHECK (Read this):**\n- 157450 is GREATER than 100000. Result: **PASS**.\n- 224000 is GREATER than 100000. Result: **PASS**.\n- Do NOT output \"Salary is below floor\" if the number is mathematically higher.\n\n---\n\n### STEP 3: CONSERVATIVE SKILL SCORING (Only if Step 2 Passes)\n\n**Instruction:** Act as a strict hiring manager. Do not be generous. Scores should reflect reality.\n\n- **10 (Unicorn):** \n  - Salary Matches.\n  - Candidate has **EXACT** Tech Stack (e.g., Job wants Java/Spring, Candidate has Java/Spring).\n  - Candidate has **EXACT** Years of Experience (or more).\n  - Candidate has **RELEVANT** Domain Knowledge (e.g., Defense, Finance, Healthcare).\n  \n- **8-9 (Strong Fit):**\n  - Salary Matches.\n  - Candidate has all **Core Technical Skills**.\n  - Missing only minor \"Nice-to-have\" tools.\n  - Domain match is good but not perfect.\n\n- **6-7 (Capable but Gaps):**\n  - Salary Matches.\n  - Candidate fits the general role (e.g., Software Engineer) but uses a different stack (e.g., Job wants React, Candidate knows Angular).\n  - OR Candidate is slightly junior for the role.\n\n- **1-5 (Weak Match):**\n  - Salary Matches.\n  - Candidate lacks core technical requirements (e.g., Python dev applying for Embedded C++ role).\n  - OR Candidate is significantly over/under qualified.\n\n- **0 (Automatic Fail):** \n  - Salary Logic Failed (Step 2 was FAIL).\n\n---\n\n### 📝 EXTRACTION RULES\n1.  **job_description:** Summarize in <100 words.\n2.  **responsibilities / qualifications:** Format: \"Point 1;\\nPoint 2;\\nPoint 3\".\n3.  **apply_link:** Extract `apply_options`. Format HTML `<a href='{link}'>{publisher}</a>`. Join with `;\\n`. Max 4.\n4.  **remote:** \"Yes\" or \"No\".\n5.  **salary:** Extract original text string. If empty, print the `job_min_salary` - `job_max_salary` range.\n6.  **match_reason:**\n    - If Score 0: \"Job max salary ($[JOB_CEILING]) is below candidate floor ($[MIN_FLOOR]).\"\n    - If Score > 0: \"Salary fits ($[JOB_CEILING]). [Strict assessment of skill gaps or fit].\"\n    - If Score is below 6 or 7 because of some skill requirements and other qualifications needed, mention each skills in the match_reason that the candidate is lacking or needs to learn.\n\n---\n\n### FINAL OUTPUT JSON\nReturn ONLY this single JSON object.\n\n{\n  \"job_title\": \"\",\n  \"job_description\": \"\",\n  \"company\": \"\",\n  \"employment_type\": \"\",\n  \"remote\": \"\",\n  \"salary\": \"\",\n  \"benefits\": \"\",\n  \"responsibilities\": \"\",\n  \"qualifications\": \"\",\n  \"apply_link\": \"\",\n  \"match_score\": 0,\n  \"match_reason\": \"\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -464,
+        816
+      ],
+      "id": "29737430-0b20-462d-88fc-5ac315683706",
+      "name": "Job Compatibility Agent"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        992
+      ],
+      "id": "79023ba4-ef1e-4e5e-ac04-9f5278ed9cbe",
+      "name": "Wait",
+      "webhookId": "40450180-fa64-4967-8d9e-44ec97048a7e"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output.match_reason"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": false
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        864,
+        1024
+      ],
+      "id": "202cf6d5-4144-4603-a1e1-145eb96978c4",
+      "name": "Aggregate Reasons"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        864,
+        720
+      ],
+      "id": "9f852fc5-a113-411b-9629-8e11af0fe2ff",
+      "name": "Aggregate Jobs"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        0,
+        720
+      ],
+      "id": "6396b7df-32ed-443f-8560-a8bbef067676",
+      "name": "Merge Listing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1392,
+        880
+      ],
+      "id": "2c47e941-6a92-4dd2-b410-7cee37974238",
+      "name": "Merge Result"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        880
+      ],
+      "id": "4d54b4ae-e7cb-4385-9055-897b3c4121ca",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "url": "https://api.openwebninja.com/jsearch/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "=Software Engineer"
+            },
+            {
+              "name": "num_pages",
+              "value": "10"
+            },
+            {
+              "name": "work_from_home",
+              "value": "=false"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        128
+      ],
+      "id": "2470277c-fcbb-48b9-acc0-fc4c1ef17277",
+      "name": "Call JSearch API",
+      "notesInFlow": false,
+      "notes": "Fetch Job Listings"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1056,
+        1264
+      ],
+      "id": "ed63beef-bda6-4d12-b0b3-2a86d84ceb5b",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "JxbpfCp6FT54GTlp",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "timeout": 480000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        896
+      ],
+      "id": "33c3cce4-8d47-46b4-ba37-9fd9debebfc5",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "JxbpfCp6FT54GTlp",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        1008
+      ],
+      "id": "8ee8b566-8afa-45d7-a0e2-60de9f2dc260",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JxbpfCp6FT54GTlp",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        352
+      ],
+      "id": "b5340d03-5020-474d-9604-a1cf002ac06c",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "JxbpfCp6FT54GTlp",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json.data) }}",
+        "options": {
+          "systemMessage": "=You are a precise data-to-HTML conversion AI. Your ONLY goal is to convert job listing JSON data into a strictly formatted HTML email body.\n\nYou must exhibit DETERMINISTIC behavior:\n1. ALWAYS output the exact same HTML structure for the same input.\n2. DO NOT hallucinate, summarize, rephrase, or shorten text.\n3. DO NOT use placeholders. The input is guaranteed to have all values; render them exactly as they are.\n\n────────────────────────────────────────\nGLOBAL OUTPUT RULES (STRICT)\n────────────────────────────────────────\n• Output ONLY raw HTML string. No markdown.\n• Use INLINE styles ONLY.\n• Sort jobs by `match_score` DESCENDING (10 → 1).\n• Decode any HTML entities in the source text.\n• **LAYOUT STRATEGY**: Use `inline-block` for layout (Gmail safe). Do not use Flexbox.\n\n────────────────────────────────────────\nROOT CONTAINER\n────────────────────────────────────────\n<!-- font-size:0 removes whitespace between inline-blocks. text-align:center centers the cards. -->\n<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:0;text-align:center;background-color:#ffffff;\">\n\n(Each Job Card represents one item in the input array)\n\n────────────────────────────────────────\nJOB CARD CONTAINER\n────────────────────────────────────────\n<!-- \n  display:inline-block allows side-by-side. \n  min-width:280px forces the card to wrap to a new line on mobile screens.\n  font-size:14px restores text size (since parent is 0).\n  text-align:left resets alignment (since parent is center).\n-->\n<div style=\"display:inline-block;vertical-align:top;width:46%;min-width:280px;margin:10px;text-align:left;font-size:14px;background:#f9f9f9;border-radius:12px;padding:28px 20px 20px 20px;position:relative;border:1px solid #e6e6e6;box-sizing:border-box;\">\n\n────────────────────────────────────────\nELEMENT: TOP MATCH LABEL\n────────────────────────────────────────\nCONDITION: Render this div ONLY if `match_score` is equal to 10.\nSTYLE:\n<div style=\"background:#0b8043;color:#ffffff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:bold;letter-spacing:0.4px;display:inline-block;\">\nTOP MATCH\n</div>\n\n────────────────────────────────────────\nELEMENT: MATCH SCORE BADGE\n────────────────────────────────────────\nDATA: **match_score**\nSTYLE:\n<div style=\"margin-top:-40px;margin-right:-5px;background:#1a73e8;color:#ffffff;width:60px;height:60px;line-height:64px;text-align:center;border-radius:999px;font-weight:bold;font-size:30px;float:right;box-shadow:0 4px 10px rgba(26,115,232,0.35);\">\n**match_score**\n</div>\n\n────────────────────────────────────────\nELEMENT: HEADER\n────────────────────────────────────────\nDATA: **job_title** and **company**\nSTYLE:\n<div style=\"margin-top:6px;\">\n<div style=\"font-size:18px;font-weight:bold;color:#202124;line-height:1.4;\">\n**job_title**\n</div>\n<div style=\"font-size:14px;color:#5f6368;margin-top:4px;\">\n**company**\n</div>\n</div>\n\n────────────────────────────────────────\nELEMENT: METADATA TAGS\n────────────────────────────────────────\nDATA: **employment_type** and **remote**\nSTYLE:\n<div style=\"margin-top:10px;\">\n<span style=\"font-size:13px;background:#f1f3f4;padding:4px 8px;border-radius:6px;color:#5f6368;display:inline-block;\">\nEmployment Type: **employment_type**\n</span>\n</div>\n<div style=\"margin-top:6px;\">\n<span style=\"font-size:13px;background:#f1f3f4;padding:4px 8px;border-radius:6px;color:#5f6368;display:inline-block;\">\nRemote: **remote**\n</span>\n</div>\n\n────────────────────────────────────────\nELEMENT: SALARY\n────────────────────────────────────────\nDATA: **salary**\nSTYLE:\n<div style=\"margin-top:10px;display:inline-block;background:#e6f4ea;color:#0b8043;padding:6px 10px;border-radius:6px;font-weight:bold;font-size:14px;\">\n💰 **salary**\n</div>\n\n────────────────────────────────────────\nELEMENT: LIST SECTIONS (Responsibilities, Qualifications, Benefits)\n────────────────────────────────────────\nINSTRUCTIONS:\n1. For 'responsibilities', 'qualifications', and 'benefits'.\n2. The input is a string separated by newlines (\\n) or semicolons (;). Split them into individual items.\n3. Render every item found.\n\nHEADER STYLE:\n<div style=\"font-size:14px;font-weight:bold;margin-top:16px;\">\nResponsibilities\n</div>\n\nLIST STYLE:\n<ul style=\"margin-top:8px;padding-left:18px;margin-bottom:0;\">\n<li>**Item 1**</li>\n<li>**Item 2**</li>\n</ul>\n\n(Repeat this pattern for Qualifications and Benefits headers/lists)\n\n────────────────────────────────────────\nELEMENT: MATCH REASON\n────────────────────────────────────────\nDATA: **match_reason**\nSTYLE:\n<div style=\"margin-top:14px;background:#eef3fd;padding:12px;border-radius:8px;font-size:13px;line-height:1.5;\">\n<strong>Why this matches you:</strong><br/>\n**match_reason**\n</div>\n\n────────────────────────────────────────\nELEMENT: APPLY BUTTONS\n────────────────────────────────────────\nDATA: **apply_link**\nINSTRUCTIONS:\nThe input `apply_link` is a string containing HTML anchors (e.g., `<a href=\"...\">Title</a>`).\n1. Regex/Parse the input to extract the URL (href) and the Label (text content) for EACH link.\n2. Create a button for EACH extracted link.\n\nCONTAINER (No Flexbox - use standard block flow):\n<div style=\"margin-top:18px;\">\n\nBUTTON STYLE:\n<a href=\"**extracted_url**\" style=\"display:inline-block;padding:10px 16px;background:#1a73e8;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;white-space:nowrap;margin-right:10px;margin-bottom:10px;\">\n**extracted_label**\n</a>\n\n</div>\n\n────────────────────────────────────────\nCLOSING TAGS\n────────────────────────────────────────\nClose the job card div.\nClose the root container div after all jobs are rendered."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1072,
+        720
+      ],
+      "id": "48453ca1-4828-44d7-8817-f77fa46ec955",
+      "name": "Email Builder Agent"
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        304,
+        720
+      ],
+      "id": "2ad12448-c0ba-4471-adaa-47dab9cf8d14",
+      "name": "Process Results in Batch"
+    },
+    {
+      "parameters": {
+        "content": "## Collects Resume Info and Call JSearch API\n### the **Limit Node** is there just to cut the number of jobs we want to process for the demo purposes only (remove it later when ready)",
+        "height": 560,
+        "width": 2864,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "4e97ce55-2a70-4818-bab4-474ea0927369",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Process each job listing and score them based on the qualifications on the Resume\n### the **Wait Node** here is needed so that we don't hit the OpenAI's RPM limit especially if we are just in Free Tier.",
+        "height": 896,
+        "width": 1072,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "bb17c8c3-4bd6-4fd3-ab35-6aaa1cafe6a9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Create the emails for the qualified jobs and list down some skills worth learning \n### We are again processing this part by batch (by 10 in this demo) to avoid timeouts and hitting the limit since we are sending lots of text ",
+        "height": 896,
+        "width": 1776,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "fe40436e-fcd2-4989-a9bb-f871dff80dce",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1856,
+        1248
+      ],
+      "id": "cbe22c84-6246-40aa-9ce9-7ec566faf75c",
+      "name": "Wait1",
+      "webhookId": "40450180-fa64-4967-8d9e-44ec97048a7e"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b120801b-b477-4cb2-a0e4-83dbe18357ac",
+              "leftValue": "={{ $json.output.match_score }}",
+              "rightValue": 7,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        736
+      ],
+      "id": "9eae8856-b030-4b5a-b4a1-b096fc7719f9",
+      "name": "If Match Score >= 7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Merge Listing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Job Compatibility Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Job Compatibility Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze what skills to learn": {
+      "main": [
+        [
+          {
+            "node": "Merge Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Resume Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Details": {
+      "main": [
+        [
+          {
+            "node": "Call JSearch API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume Agent": {
+      "main": [
+        [
+          {
+            "node": "Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Compatibility Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Reasons": {
+      "main": [
+        [
+          {
+            "node": "Analyze what skills to learn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Jobs": {
+      "main": [
+        [
+          {
+            "node": "Email Builder Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Listing": {
+      "main": [
+        [
+          {
+            "node": "Process Results in Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Result": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call JSearch API": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze what skills to learn",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Builder Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Job Compatibility Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resume Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Builder Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Results in Batch": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If Match Score >= 7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Process Results in Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Match Score >= 7": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aggregate Reasons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f6dd1f53-e96d-4f8e-be20-8c8bef1b9dbf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "398373a00ccfa8a38a09fc1f38af9510a3287d2559eb2a735d30e6b92f8738d9"
+  },
+  "id": "JWNykHPeI4QQcxbP",
+  "tags": []
+}

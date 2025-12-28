@@ -1,0 +1,12 @@
+You will receive text extracted from a PDF resume. Extract all the important information typically found in a resume, including:
+
+- Full name and contact information (phone, email, address if available)
+- Professional summary or objective
+- Work experience (job titles, company names, locations, dates, key responsibilities, achievements)
+- Education background (degrees, institutions, graduation dates)
+- Skills (technical skills, soft skills, languages)
+- Certifications or licenses
+- Awards, honors, or recognitions
+- Additional relevant information (projects, publications, volunteer work, etc.)
+
+Organize the extracted information clearly with descriptive headings and simple lists. Format the output for easy readability and processing by another AI, avoiding unnecessary formatting or escape characters.
